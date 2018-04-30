@@ -5,14 +5,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <meta name="generator" content="http://www.nongnu.org/elyxer/"/>
 <meta name="create-date" content="2018-04-29"/>
-<link rel="stylesheet" href="lyx.css" type="text/css" media="all"/>
+<link rel="stylesheet" href="http://elyxer.nongnu.org/lyx.css" type="text/css" media="all"/>
 <title>COLA and Overlap-add STFT Processing</title>
-<script type="text/javascript" async
-src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-AMS-MML_HTMLorMML">
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 </head>
 <body>
-<div id="globalWrapper" style="max-width: 900px; margin: auto;">
+<div id="globalWrapper">
 <script type="math/tex">
 \newcommand{\lyxlock}{}
 </script>
@@ -25,7 +25,7 @@ Warning: <a href="http://www.mathjax.org/">MathJax</a> requires JavaScript to co
 COLA and Overlap-add STFT Processing
 </h1>
 <div class="Standard">
-It is common in audio (and other kinds of signal processing) to
+It is common in audio (and other kinds of signal processing) to 
 </div>
 <ol>
 <li>
@@ -46,7 +46,7 @@ w
 </span> is usually applied to the samples in each frame, and the frames overlap. Because of this, it is not completely obvious when it is possible to recover a time domain signal from the spectrogram, and how best to do it.
 </div>
 <div class="Standard">
-In fact, depending on the processing that was done in Step 2, there may not <i>be</i> a time-domain signal whose STFT is exactly the output from Step 2. In this note, we are going to ignore this issue and consider only the simple case where we don’t do anything in Step 2.
+In fact, depending on the processing that was done in Step 2, there may not <i>be</i> a time-domain signal whose STFT is exactly the output from Step 2. In this note, we are going to ignore this issue and consider only the simple case where we don’t do anything in Step 2. 
 </div>
 <div class="Standard">
 The good news in this case is that, given two conditions that are easily achieved in practice, Step 3 is possible and the result is exactly equal to the original time-domain signal.
@@ -59,9 +59,9 @@ The second condition is that <span class="MathJax_Preview"><script type="math/te
 w[n]>0
 </script>
 </span> for all <span class="MathJax_Preview"><script type="math/tex">
-n
+n.
 </script>
-</span>. However, in the literature, you will see mention of a much stronger condition: the <i>constant-overlap add</i> (COLA) constraint. You can easily get the impression that COLA is necessary for the STFT to be invertible. This note was prompted by the implementation of the ISTFT in SciPy (v1.0.0) which will check if COLA is satisfied and will abort if not.
+</span> However, in the literature, you will see mention of a much stronger condition: the <i>constant-overlap add</i> (COLA) constraint. You can easily get the impression that COLA is necessary for the STFT to be invertible. This note was prompted by the implementation of the ISTFT in SciPy (v1.0.0) which will check if COLA is satisfied and will abort if not.
 </div>
 <div class="Standard">
 In this note we derive the invertibility of the ISTFT from first principles and show that COLA, while sufficient, is not necessary.
@@ -74,12 +74,12 @@ We begin by reviewing the forward and inverse Fourier transform for finite sampl
 </div>
 <div class="Standard">
 Given a sequence <span class="MathJax_Preview"><script type="math/tex">
-x=x[0],x[1],\dots,x[N-1]
+x=x[0],x[1],\dots,x[N-1],
 </script>
-</span>, SciPy’s <tt>fft</tt> function gives us the discrete Fourier transform <span class="MathJax_Preview"><script type="math/tex">
-X
+</span> SciPy’s <tt>fft</tt> function gives us the discrete Fourier transform <span class="MathJax_Preview"><script type="math/tex">
+X:
 </script>
-</span>:
+</span>
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
@@ -126,18 +126,18 @@ See Lemma 2 in the Appendix if you want a refresher on why this is true.
 </h1>
 <div class="Standard">
 Now let’s supposed we have a longer sequence <span class="MathJax_Preview"><script type="math/tex">
-x
+x.
 </script>
-</span>. We analyse it in successive frames of length <span class="MathJax_Preview"><script type="math/tex">
+</span> We analyse it in successive frames of length <span class="MathJax_Preview"><script type="math/tex">
 N
 </script>
 </span>, with a hop size of <span class="MathJax_Preview"><script type="math/tex">
 H
 </script>
 </span> from one frame to the next. The overlap requirement means that <span class="MathJax_Preview"><script type="math/tex">
-H\le N
+H\le N.
 </script>
-</span>.
+</span>
 </div>
 <div class="Standard">
 We’ll use <span class="MathJax_Preview"><script type="math/tex">
@@ -147,9 +147,9 @@ t
 f
 </script>
 </span> as the index of the frequencies in a given frame. Then for a hop size of <span class="MathJax_Preview"><script type="math/tex">
-H
+H,
 </script>
-</span>, the samples in frame <span class="MathJax_Preview"><script type="math/tex">
+</span> the samples in frame <span class="MathJax_Preview"><script type="math/tex">
 t
 </script>
 </span> are
@@ -181,9 +181,9 @@ Let <span class="MathJax_Preview"><script type="math/tex">
 w
 </script>
 </span> be a window function <span class="MathJax_Preview"><script type="math/tex">
-w=\{w[n]\}_{n=0}^{N-1}
+w=\{w[n]\}_{n=0}^{N-1}.
 </script>
-</span>. We get the STFT by computing the Fourier transform of <span class="MathJax_Preview"><script type="math/tex">
+</span> We get the STFT by computing the Fourier transform of <span class="MathJax_Preview"><script type="math/tex">
 x_{t}\odot w
 </script>
 </span> (pointwise multiplication) for each frame to get
@@ -272,15 +272,15 @@ as long as <span class="MathJax_Preview"><script type="math/tex">
 \sum_{t=-\infty}^{\infty}w[n-tH]\ne0
 </script>
 </span> for any <span class="MathJax_Preview"><script type="math/tex">
-n
+n.
 </script>
-</span>. In Lemma 3 in the appendix, we show that the sum will be nonzero if <span class="MathJax_Preview"><script type="math/tex">
+</span> In Lemma 3 in the appendix, we show that the sum will be nonzero if <span class="MathJax_Preview"><script type="math/tex">
 w[n]>0
 </script>
 </span> for <span class="MathJax_Preview"><script type="math/tex">
-0\le n<N
+0\le n<N.
 </script>
-</span>. This is a much weaker constraint than COLA.
+</span> This is a much weaker constraint than COLA.
 </div>
 <h1 class="Section">
 <a class="toc" name="toc-Section-4">4</a> COLA condition for STFT
@@ -325,15 +325,15 @@ Because of the windowing and overlapping, it is not obvious how to recover <span
 x
 </script>
 </span> from the <span class="MathJax_Preview"><script type="math/tex">
-y_{t}
+y_{t}.
 </script>
-</span>. We’ll just pull a rabbit out of the hat. Somewhat surprising (to me) is that we multiply the <span class="MathJax_Preview"><script type="math/tex">
+</span> We’ll just pull a rabbit out of the hat. Somewhat surprising (to me) is that we multiply the <span class="MathJax_Preview"><script type="math/tex">
 y_{t}
 </script>
 </span> by the window function <span class="MathJax_Preview"><script type="math/tex">
-w
+w.
 </script>
-</span>.
+</span>
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
@@ -371,21 +371,24 @@ As shown in Lemma 3 in the Appendix, as long as <span class="MathJax_Preview"><s
 w>0
 </script>
 </span> in its domain and <span class="MathJax_Preview"><script type="math/tex">
-H\le N
+H\le N,
 </script>
-</span>, the sum is not zero and we can divide it out to prove the claim.
+</span> the sum is not zero and we can divide it out to prove the claim.
 </div>
 <div class="Standard">
 You will sometimes find in the literature mention of the COLA condition for <span class="MathJax_Preview"><script type="math/tex">
-w^{2}
+w^{2}.
 </script>
-</span>. We have shown that is sufficient but not necessary in order to be able to invert the STFT.
+</span> We have shown that is sufficient but not necessary in order to be able to invert the STFT.
 </div>
 <h1 class="Section">
 <a class="toc" name="toc-Section-5">5</a> Discussion and conclusions
 </h1>
 <div class="Standard">
-We have shown that COLA is not a necessary condition for the STFT to be invertible. We were motivated do this by the implementation of the SciPy library function <tt>istft</tt>. The COLA constraint imposed by that function should be removed.
+We have shown that COLA is not a necessary condition for the STFT to be invertible. We were motivated do this by the implementation of the SciPy library function <tt>istft</tt>. The COLA constraint imposed by that function should be removed or at least made optional. 
+</div>
+<div class="Standard">
+It should be noted that despite what the documentation implies, there is not COLA checking in the forward function, <tt>stft</tt>.
 </div>
 <h1 class="Section-">
 <a class="toc" name="toc-Section--1"></a>Appendix
@@ -405,7 +408,7 @@ We have shown that COLA is not a necessary condition for the STFT to be invertib
 
 </div>
 <div class="Standard">
-where
+where 
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
@@ -455,9 +458,9 @@ m=n
 </h2>
 <div class="Standard">
 Given a sequence <span class="MathJax_Preview"><script type="math/tex">
-\{x[n]\}_{n=0}^{N-1}
+\{x[n]\}_{n=0}^{N-1},
 </script>
-</span>, its sampled discrete Fourier transform is
+</span> its sampled discrete Fourier transform is
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
@@ -519,18 +522,18 @@ w=\{w[n]\}_{n=0}^{N-1}
 w[n]>0
 </script>
 </span> for all <span class="MathJax_Preview"><script type="math/tex">
-n
+n.
 </script>
-</span>. Extend <span class="MathJax_Preview"><script type="math/tex">
+</span> Extend <span class="MathJax_Preview"><script type="math/tex">
 w
 </script>
 </span> to infinity at both ends by padding with zeros. Then if the hop size <span class="MathJax_Preview"><script type="math/tex">
 H
 </script>
 </span> is less than <span class="MathJax_Preview"><script type="math/tex">
-N
+N,
 </script>
-</span>,
+</span>
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
@@ -544,7 +547,7 @@ N
 
 </div>
 <div class="Standard">
-Similarly,
+Similarly, 
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
