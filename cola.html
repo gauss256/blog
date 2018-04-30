@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <meta name="generator" content="http://www.nongnu.org/elyxer/"/>
 <meta name="create-date" content="2018-04-29"/>
-<link rel="stylesheet" href="http://elyxer.nongnu.org/lyx.css" type="text/css" media="all"/>
+<link rel="stylesheet" href="lyx.css" type="text/css" media="all"/>
 <title>COLA and Overlap-add STFT Processing</title>
 <script type="text/javascript"
   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
@@ -25,7 +25,7 @@ Warning: <a href="http://www.mathjax.org/">MathJax</a> requires JavaScript to co
 COLA and Overlap-add STFT Processing
 </h1>
 <div class="Standard">
-It is common in audio (and other kinds of signal processing) to 
+It is common in audio (and other kinds of signal processing) to
 </div>
 <ol>
 <li>
@@ -46,7 +46,7 @@ w
 </span> is usually applied to the samples in each frame, and the frames overlap. Because of this, it is not completely obvious when it is possible to recover a time domain signal from the spectrogram, and how best to do it.
 </div>
 <div class="Standard">
-In fact, depending on the processing that was done in Step 2, there may not <i>be</i> a time-domain signal whose STFT is exactly the output from Step 2. In this note, we are going to ignore this issue and consider only the simple case where we don’t do anything in Step 2. 
+In fact, depending on the processing that was done in Step 2, there may not <i>be</i> a time-domain signal whose STFT is exactly the output from Step 2. In this note, we are going to ignore this issue and consider only the simple case where we don’t do anything in Step 2.
 </div>
 <div class="Standard">
 The good news in this case is that, given two conditions that are easily achieved in practice, Step 3 is possible and the result is exactly equal to the original time-domain signal.
@@ -137,7 +137,7 @@ H
 </span> from one frame to the next. The overlap requirement means that <span class="MathJax_Preview"><script type="math/tex">
 H\le N
 </script>
-</span>. 
+</span>.
 </div>
 <div class="Standard">
 We’ll use <span class="MathJax_Preview"><script type="math/tex">
@@ -405,7 +405,7 @@ We have shown that COLA is not a necessary condition for the STFT to be invertib
 
 </div>
 <div class="Standard">
-where 
+where
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
@@ -544,7 +544,7 @@ N
 
 </div>
 <div class="Standard">
-Similarly, 
+Similarly,
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
