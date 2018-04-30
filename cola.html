@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="generator" content="http://www.nongnu.org/elyxer/"/>
+<meta name="create-date" content="2018-04-29"/>
+<link rel="stylesheet" href="http://elyxer.nongnu.org/lyx.css" type="text/css" media="all"/>
+<title>COLA and Overlap-add STFT Processing</title>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<div id="globalWrapper">
+<script type="math/tex">
+\newcommand{\lyxlock}{}
+</script>
+<noscript>
+<div class="warning">
+Warning: <a href="http://www.mathjax.org/">MathJax</a> requires JavaScript to correctly process the mathematics on this page. Please enable JavaScript on your browser.
+</div><hr/>
+</noscript>
+<h1 class="title">
+COLA and Overlap-add STFT Processing
+</h1>
+<div class="Standard">
+It is common in audio (and other kinds of signal processing) to 
+</div>
+<ol>
+<li>
+convert the time-domain signal to a spectrogram via the short-time Fourier transform (STFT),
+</li>
+<li>
+do some processing on the spectrogram,
+</li>
+<li>
+convert the spectrogram back to the time domain via the inverse short-time Fourier transform (ISTFT).
+</li>
+
+</ol>
+<div class="Standard">
+When creating the spectrogram in Step 1, a window <span class="MathJax_Preview"><script type="math/tex">
+w
+</script>
+</span> is usually applied to the samples in each frame, and the frames overlap. Because of this, it is not completely obvious when it is possible to recover a time domain signal from the spectrogram, and how best to do it.
+</div>
+<div class="Standard">
+In fact, depending on the processing that was done in Step 2, there may not <i>be</i> a time-domain signal whose STFT is exactly the output from Step 2. In this note, we are going to ignore this issue and consider only the simple case where we don’t do anything in Step 2. 
+</div>
+<div class="Standard">
+The good news in this case is that, given two conditions that are easily achieved in practice, Step 3 is possible and the result is exactly equal to the original time-domain signal.
+</div>
+<div class="Standard">
+The first condition is that there is some overlap between frames, or that they at least abut. This makes intuitive sense because otherwise we are leaving out some samples when doing the STFT, so there is no way to reconstruct them.
+</div>
+<div class="Standard">
+The second condition is that <span class="MathJax_Preview"><script type="math/tex">
+w[n]>0
+</script>
+</span> for all <span class="MathJax_Preview"><script type="math/tex">
+n
+</script>
+</span>. However, in the literature, you will see mention of a much stronger condition: the <i>constant-overlap add</i> (COLA) constraint. You can easily get the impression that COLA is necessary for the STFT to be invertible. This note was prompted by the implementation of the ISTFT in SciPy (v1.0.0) which will check if COLA is satisfied and will abort if not.
+</div>
+<div class="Standard">
+In this note we derive the invertibility of the ISTFT from first principles and show that COLA, while sufficient, is not necessary.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-1">1</a> Forward and inverse DFT for a single frame
+</h1>
+<div class="Standard">
+We begin by reviewing the forward and inverse Fourier transform for finite sampled sequences.
+</div>
+<div class="Standard">
+Given a sequence <span class="MathJax_Preview"><script type="math/tex">
+x=x[0],x[1],\dots,x[N-1]
+</script>
+</span>, SciPy’s <tt>fft</tt> function gives us the discrete Fourier transform <span class="MathJax_Preview"><script type="math/tex">
+X
+</script>
+</span>:
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{equation}
+X[f]=\sum_{n=0}^{N-1}x[n]e^{-2\pi ifn/N}\quad\text{for }f=0,1,\dots,N-1\label{eq:fft}
+\end{equation}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+In many applications, <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span> is a real sequence, and we could optimize out some redundant outputs (see the <tt>rfft</tt> function). But mathematically it’s all equivalent and it would just complicate the presentation here so we’re not going to do that.
+</div>
+<div class="Standard">
+We can exactly recover <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span> from <span class="MathJax_Preview"><script type="math/tex">
+X
+</script>
+</span> via the inverse Fourier transform <tt>ifft</tt>
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{equation}
+x[n]=\frac{1}{N}\sum_{f=0}^{N-1}X[f]e^{2\pi ifn/N}\label{eq:ifft}
+\end{equation}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+See Lemma 2 in the Appendix if you want a refresher on why this is true.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-2">2</a> Windowed STFT
+</h1>
+<div class="Standard">
+Now let’s supposed we have a longer sequence <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span>. We analyse it in successive frames of length <span class="MathJax_Preview"><script type="math/tex">
+N
+</script>
+</span>, with a hop size of <span class="MathJax_Preview"><script type="math/tex">
+H
+</script>
+</span> from one frame to the next. The overlap requirement means that <span class="MathJax_Preview"><script type="math/tex">
+H\le N
+</script>
+</span>. 
+</div>
+<div class="Standard">
+We’ll use <span class="MathJax_Preview"><script type="math/tex">
+t
+</script>
+</span> as the index of the frames and <span class="MathJax_Preview"><script type="math/tex">
+f
+</script>
+</span> as the index of the frequencies in a given frame. Then for a hop size of <span class="MathJax_Preview"><script type="math/tex">
+H
+</script>
+</span>, the samples in frame <span class="MathJax_Preview"><script type="math/tex">
+t
+</script>
+</span> are
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+x_{t}=\{x_{t}[n]\}_{n=0}^{N-1}
+
+</script>
+
+</span>
+where
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+x_{t}[n]=x[n+tH]
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+Let <span class="MathJax_Preview"><script type="math/tex">
+w
+</script>
+</span> be a window function <span class="MathJax_Preview"><script type="math/tex">
+w=\{w[n]\}_{n=0}^{N-1}
+</script>
+</span>. We get the STFT by computing the Fourier transform of <span class="MathJax_Preview"><script type="math/tex">
+x_{t}\odot w
+</script>
+</span> (pointwise multiplication) for each frame to get
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+X_{t}[f]=\sum_{n=0}^{N-1}x_{t}[n]w[n]e^{-2\pi ifn/N}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+In practice, both <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span> and <span class="MathJax_Preview"><script type="math/tex">
+w
+</script>
+</span> are finite sequences. To simplify the notation in the following, we will assume that they have both been zero-padded to infinity at both ends.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-3">3</a> COLA condition in the time domain
+</h1>
+<div class="Standard">
+We could ask that it be possible to recover <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span> from its windowed frames by adding them all up. Note that we use infinite sums in the following, but only a finite number of terms are non-zero.
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{align*}
+\sum_{t=-\infty}^{\infty}x_{t}[n]w[n] & =\sum_{t=-\infty}^{\infty}x[n+tH]w[n]\\
+ & =\sum_{t=-\infty}^{\infty}x[n]w[n-tH]\\
+ & =x[n]\sum_{t=-\infty}^{\infty}w[n-tH]
+\end{align*}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+The sum over frames will equal <span class="MathJax_Preview"><script type="math/tex">
+x[n]
+</script>
+</span>  if <span class="MathJax_Preview"><script type="math/tex">
+w
+</script>
+</span> obeys the COLA constraint
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+\sum_{t=-\infty}^{\infty}w[n-tH]=1\quad\text{for all }n\in\mathbb{Z}\quad\quad\text{(COLA constraint)}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+If <span class="MathJax_Preview"><script type="math/tex">
+w
+</script>
+</span> doesn’t obey the COLA constraint, we still have
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+x[n]=\frac{\sum_{t=-\infty}^{\infty}x_{t}[n]w[n]}{\sum_{t=-\infty}^{\infty}w[n-tH]}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+as long as <span class="MathJax_Preview"><script type="math/tex">
+\sum_{t=-\infty}^{\infty}w[n-tH]\ne0
+</script>
+</span> for any <span class="MathJax_Preview"><script type="math/tex">
+n
+</script>
+</span>. In Lemma 3 in the appendix, we show that the sum will be nonzero if <span class="MathJax_Preview"><script type="math/tex">
+w[n]>0
+</script>
+</span> for <span class="MathJax_Preview"><script type="math/tex">
+0\le n<N
+</script>
+</span>. This is a much weaker constraint than COLA.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-4">4</a> COLA condition for STFT
+</h1>
+<div class="Standard">
+A more interesting question is, suppose we calculate the spectrogram of <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span> by using a windowed STFT. In the frame <span class="MathJax_Preview"><script type="math/tex">
+t
+</script>
+</span> we have the forward Fourier transform from equation (<a class="Reference" href="#eq:fft">↓</a>)
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{align*}
+X_{t}[f] & =\sum_{n=0}^{N-1}x_{t}[n]w[n]e^{-2\pi ifn/N}\\
+ & =\sum_{n=0}^{N-1}x[n+tH]w[n]e^{-2\pi ifn/N}
+\end{align*}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+The inverse Fourier transform for that frame is, from equation (<a class="Reference" href="#eq:ifft">↓</a>)
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+y_{t}[n]=\frac{1}{N}\sum_{f=0}^{N-1}X_{t}[f]e^{2\pi ifn/N}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+Because of the windowing and overlapping, it is not obvious how to recover <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span> from the <span class="MathJax_Preview"><script type="math/tex">
+y_{t}
+</script>
+</span>. We’ll just pull a rabbit out of the hat. Somewhat surprising (to me) is that we multiply the <span class="MathJax_Preview"><script type="math/tex">
+y_{t}
+</script>
+</span> by the window function <span class="MathJax_Preview"><script type="math/tex">
+w
+</script>
+</span>.
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{equation}
+\text{Claim: }x[n]=\frac{\sum_{t=-\infty}^{\infty}w[n]y_{t}[n]}{\sum_{t=-\infty}^{\infty}w[n-tH]^{2}}\label{eq:gla}
+\end{equation}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+To prove this, let’s work on the numerator and use Lemma 1 from the Appendix.
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{align*}
+\sum_{t=-\infty}^{\infty}w[n]y_{t}[n] & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]\sum_{f=0}^{N-1}X_{t}[f]e^{2\pi ifn/N}\\
+ & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]\sum_{f=0}^{N-1}\sum_{m=0}^{N-1}x[m+tH]w[m]e^{-2\pi ifm/N}e^{2\pi ifn/N}\\
+ & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]\sum_{m=0}^{N-1}x[m+tH]w[m]\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N}\\
+ & =\sum_{t=-\infty}^{\infty}w[n]\sum_{m=0}^{N-1}x[m+tH]w[m]\delta(m-n)\\
+ & =\sum_{t=-\infty}^{\infty}w[n]^{2}x[n+tH]\\
+ & =\sum_{t=-\infty}^{\infty}w[n-tH]^{2}x[n]\\
+ & =x[n]\sum_{t=-\infty}^{\infty}w[n-tH]^{2}
+\end{align*}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+As shown in Lemma 3 in the Appendix, as long as <span class="MathJax_Preview"><script type="math/tex">
+w>0
+</script>
+</span> in its domain and <span class="MathJax_Preview"><script type="math/tex">
+H\le N
+</script>
+</span>, the sum is not zero and we can divide it out to prove the claim.
+</div>
+<div class="Standard">
+You will sometimes find in the literature mention of the COLA condition for <span class="MathJax_Preview"><script type="math/tex">
+w^{2}
+</script>
+</span>. We have shown that is sufficient but not necessary in order to be able to invert the STFT.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-5">5</a> Discussion and conclusions
+</h1>
+<div class="Standard">
+We have shown that COLA is not a necessary condition for the STFT to be invertible. We were motivated do this by the implementation of the SciPy library function <tt>istft</tt>. The COLA constraint imposed by that function should be removed.
+</div>
+<h1 class="Section-">
+<a class="toc" name="toc-Section--1"></a>Appendix
+</h1>
+<h2 class="Subsection-">
+<a class="toc" name="toc-Subsection--1"></a>Lemma 1
+</h2>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N}=N\delta(m-n)
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+where 
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+\delta(x)=\begin{cases}
+1, & \text{for }x=0\\
+0, & \text{otherwise}
+\end{cases}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+<i>Proof</i> Using the formula for the sum of a geometric series, we have for the case <span class="MathJax_Preview"><script type="math/tex">
+m\ne n
+</script>
+</span>
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{align*}
+\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N} & =\sum_{f=0}^{N-1}\left(\text{e^{-2\pi i(m-n)/N}}\right)^{f}\\
+ & =\frac{1-\left(\text{e^{-2\pi i(m-n)/N}}\right)^{N}}{1-\left(\text{e^{-2\pi i(m-n)/N}}\right)}\\
+ & =\frac{1-\text{e^{-2\pi i(m-n)}}}{1-\left(\text{e^{-2\pi i(m-n)/N}}\right)}\\
+ & =0
+\end{align*}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+The case <span class="MathJax_Preview"><script type="math/tex">
+m=n
+</script>
+</span> is obvious because in this case each term in the sum is equal to <span class="MathJax_Preview"><script type="math/tex">
+1
+</script>
+</span>. QED
+</div>
+<h2 class="Subsection-">
+<a class="toc" name="toc-Subsection--2"></a>Lemma 2 (inverse Fourier transform)
+</h2>
+<div class="Standard">
+Given a sequence <span class="MathJax_Preview"><script type="math/tex">
+\{x[n]\}_{n=0}^{N-1}
+</script>
+</span>, its sampled discrete Fourier transform is
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{equation}
+X[f]=\sum_{n=0}^{N-1}x[n]e^{-2\pi ifn/N}\quad\text{for }f=0,1,\dots,N-1\label{eq:fft-app}
+\end{equation}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+We can recover <span class="MathJax_Preview"><script type="math/tex">
+x
+</script>
+</span> from <span class="MathJax_Preview"><script type="math/tex">
+X
+</script>
+</span> by the equation
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{equation}
+x[n]=\frac{1}{N}\sum_{f=0}^{N-1}X[f]e^{2\pi ifn/N}\label{eq:ifft-app}
+\end{equation}
+</script>
+
+</span>
+<i>Proof:</i> Substitute equation (<a class="Reference" href="#eq:fft-app">↓</a>) into the right-hand side of equation (<a class="Reference" href="#eq:ifft-app">↓</a>) and use Lemma 1:
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{align*}
+\frac{1}{N}\sum_{f=0}^{N-1}X[f]e^{2\pi ifn/N} & =\frac{1}{N}\sum_{f=0}^{N-1}\sum_{m=0}^{N-1}x[m]e^{-2\pi ifm/N}e^{2\pi ifn/N}\\
+ & =\frac{1}{N}\sum_{f=0}^{N-1}\sum_{m=0}^{N-1}x[m]e^{-2\pi if(m-n)/N}\\
+ & =\frac{1}{N}\sum_{m=0}^{N-1}x[m]\left(\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N}\right)\\
+ & =\frac{1}{N}\sum_{m=0}^{N-1}x[m]N\delta(m-n)\\
+ & =x[n]
+\end{align*}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+QED
+</div>
+<h2 class="Subsection-">
+<a class="toc" name="toc-Subsection--3"></a>Lemma 3
+</h2>
+<div class="Standard">
+Let <span class="MathJax_Preview"><script type="math/tex">
+w=\{w[n]\}_{n=0}^{N-1}
+</script>
+</span> be a window with strictly positive values: <span class="MathJax_Preview"><script type="math/tex">
+w[n]>0
+</script>
+</span> for all <span class="MathJax_Preview"><script type="math/tex">
+n
+</script>
+</span>. Extend <span class="MathJax_Preview"><script type="math/tex">
+w
+</script>
+</span> to infinity at both ends by padding with zeros. Then if the hop size <span class="MathJax_Preview"><script type="math/tex">
+H
+</script>
+</span> is less than <span class="MathJax_Preview"><script type="math/tex">
+N
+</script>
+</span>,
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+\sum_{t=-\infty}^{\infty}w[n-tH]\ne0\quad\text{for all }n\in\mathbb{Z}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+Similarly, 
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+\sum_{t=-\infty}^{\infty}w[n-tH]^{2}\ne0\quad\text{for all }n\in\mathbb{Z}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+<i>Proof:</i> We will just prove the first case. The proof for the second is similar. Since <span class="MathJax_Preview"><script type="math/tex">
+w[m]>0
+</script>
+</span> for <span class="MathJax_Preview"><script type="math/tex">
+m=0,1,\dots,N-1
+</script>
+</span> we just need to show that for some <span class="MathJax_Preview"><script type="math/tex">
+t
+</script>
+</span>
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{align*}
+0 & \le n-tH<N
+\end{align*}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+Choose
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+\tilde{t}=\mathrm{floor}(n/H)
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+By the definition of floor,
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+\begin{align*}
+n/H-1 & <\tilde{t}\le n/H\\
+n-H & <\tilde{t}H\le n\\
+H-n & >-\tilde{t}H\ge-n\\
+H & >n-\tilde{t}H\ge0
+\end{align*}
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+Flipping this around and using the fact that <span class="MathJax_Preview"><script type="math/tex">
+H\le N
+</script>
+</span>, we have
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+0\le n-\tilde{t}H<H\le N
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+which is what we needed to show. QED
+</div>
+
+</div>
+</body>
+</html>
