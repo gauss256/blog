@@ -7,14 +7,6 @@
 <meta name="create-date" content="2018-04-29"/>
 <link rel="stylesheet" href="lyx.css" type="text/css" media="all"/>
 <title>COLA and Overlap-add STFT Processing</title>
-<!--
-<script type="text/javascript"
-  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-<script type="text/javascript" async
-src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
--->
 <script type="text/javascript" async
 src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
@@ -439,9 +431,9 @@ m\ne n
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 \begin{align*}
-\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N} & =\sum_{f=0}^{N-1}\left(\text{e^{-2\pi i(m-n)/N}}\right)^{f}\\
- & =\frac{1-\left(\text{e^{-2\pi i(m-n)/N}}\right)^{N}}{1-\left(\text{e^{-2\pi i(m-n)/N}}\right)}\\
- & =\frac{1-\text{e^{-2\pi i(m-n)}}}{1-\left(\text{e^{-2\pi i(m-n)/N}}\right)}\\
+\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N} & =\sum_{f=0}^{N-1}\left(e^{-2\pi i(m-n)/N}\right)^{f}\\
+ & =\frac{1-\left(e^{-2\pi i(m-n)/N}\right)^{N}}{1-\left(e^{-2\pi i(m-n)/N}\right)}\\
+ & =\frac{1-e^{-2\pi i(m-n)}}{1-\left(e^{-2\pi i(m-n)/N}\right)}\\
  & =0
 \end{align*}
 </script>
