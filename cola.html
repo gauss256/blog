@@ -349,18 +349,24 @@ y_{t}.
 </span> Somewhat surprisingly, we can get there by just summing the <span class="MathJax_Preview"><script type="math/tex">
 y_{t}
 </script>
-</span> after multiplying by the window function.
+</span> after multiplying by the window function raised to any positive power.
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 
-\text{Claim: }x[n]=\frac{\sum_{t=-\infty}^{\infty}w[n]y_{t}[n]}{\sum_{t=-\infty}^{\infty}w[n-tH]^{2}}
+\text{Claim: }x[n]=\frac{\sum_{t=-\infty}^{\infty}w[n]^{a}y_{t}[n]}{\sum_{t=-\infty}^{\infty}w[n-tH]^{a+1}}
 
 </script>
 
 </span>
 
+</div>
+<div class="Standard">
+for any <span class="MathJax_Preview"><script type="math/tex">
+a\ge0.
+</script>
+</span>
 </div>
 <div class="Standard">
 To prove this, let’s start with the numerator and use Lemma 1 from the Appendix.
@@ -369,13 +375,13 @@ To prove this, let’s start with the numerator and use Lemma 1 from the Appendi
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 \begin{align*}
-\sum_{t=-\infty}^{\infty}w[n]y_{t}[n] & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]\sum_{f=0}^{N-1}X_{t}[f]e^{2\pi ifn/N}\\
- & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]\sum_{f=0}^{N-1}\sum_{m=0}^{N-1}x[m+tH]w[m]e^{-2\pi ifm/N}e^{2\pi ifn/N}\\
- & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]\sum_{m=0}^{N-1}x[m+tH]w[m]\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N}\\
- & =\sum_{t=-\infty}^{\infty}w[n]\sum_{m=0}^{N-1}x[m+tH]w[m]\delta(m-n)\\
- & =\sum_{t=-\infty}^{\infty}w[n]^{2}x[n+tH]\\
- & =\sum_{t=-\infty}^{\infty}w[n-tH]^{2}x[n]\\
- & =x[n]\sum_{t=-\infty}^{\infty}w[n-tH]^{2}
+\sum_{t=-\infty}^{\infty}w[n]y_{t}^{a}[n] & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{f=0}^{N-1}X_{t}[f]e^{2\pi ifn/N}\\
+ & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{f=0}^{N-1}\sum_{m=0}^{N-1}x[m+tH]w[m]e^{-2\pi ifm/N}e^{2\pi ifn/N}\\
+ & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{m=0}^{N-1}x[m+tH]w[m]\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N}\\
+ & =\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{m=0}^{N-1}x[m+tH]w[m]\delta(m-n)\\
+ & =\sum_{t=-\infty}^{\infty}w[n]^{a+1}x[n+tH]\\
+ & =\sum_{t=-\infty}^{\infty}w[n-tH]^{a+1}x[n]\\
+ & =x[n]\sum_{t=-\infty}^{\infty}w[n-tH]^{a+1}
 \end{align*}
 </script>
 
@@ -393,9 +399,18 @@ H\le N,
 </div>
 <div class="Standard">
 Of course if <span class="MathJax_Preview"><script type="math/tex">
-w^{2}
+w^{a+1}
 </script>
 </span> satisfies the COLA constraint the denominator will be 1 and the claim is true in that case. But we have shown that it is possible to invert the STFT even without COLA.
+</div>
+<div class="Standard">
+Choosing <span class="MathJax_Preview"><script type="math/tex">
+a=1
+</script>
+</span> gives the <a class="URL" href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.306.7858&amp;rep=rep1&amp;type=pdf">Griffin-Lim optimal estimate</a> for estimating a signal from a modified STFT. SciPy implements <span class="MathJax_Preview"><script type="math/tex">
+a=1
+</script>
+</span> for the signal reconstruction in the <tt>istft</tt> routine.
 </div>
 <h1 class="Section">
 <a class="toc" name="toc-Section-6">6</a> Discussion and conclusions
@@ -552,7 +567,7 @@ H\le N,
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 
-\sum_{t=-\infty}^{\infty}w[n-tH]\ne0\quad\text{for all }n\in\mathbb{Z}
+\sum_{t=-\infty}^{\infty}w[n-tH]^{a}\ne0\quad\text{for all }n\in\mathbb{Z}
 
 </script>
 
@@ -560,27 +575,13 @@ H\le N,
 
 </div>
 <div class="Standard">
-Similarly,
-</div>
-<div class="Standard">
-<span class="MathJax_Preview">
-<script type="math/tex;mode=display">
-
-\sum_{t=-\infty}^{\infty}w[n-tH]^{2}\ne0\quad\text{for all }n\in\mathbb{Z}
-
+for any <span class="MathJax_Preview"><script type="math/tex">
+a>0.
 </script>
-
 </span>
-
 </div>
 <div class="Standard">
-<i>Proof:</i> We will just prove the first case. The proof for the second case (or for any other postive power of <span class="MathJax_Preview"><script type="math/tex">
-w
-</script>
-</span>) is similar.
-</div>
-<div class="Standard">
-Since <span class="MathJax_Preview"><script type="math/tex">
+<i>Proof:</i> Since <span class="MathJax_Preview"><script type="math/tex">
 w[m]>0
 </script>
 </span> for <span class="MathJax_Preview"><script type="math/tex">
