@@ -375,7 +375,7 @@ To prove this, let’s start with the numerator and use Lemma 1 from the Appendi
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 \begin{align*}
-\sum_{t=-\infty}^{\infty}w[n]y_{t}^{a}[n] & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{f=0}^{N-1}X_{t}[f]e^{2\pi ifn/N}\\
+\sum_{t=-\infty}^{\infty}w[n]^{a}y_{t}[n] & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{f=0}^{N-1}X_{t}[f]e^{2\pi ifn/N}\\
  & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{f=0}^{N-1}\sum_{m=0}^{N-1}x[m+tH]w[m]e^{-2\pi ifm/N}e^{2\pi ifn/N}\\
  & =\frac{1}{N}\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{m=0}^{N-1}x[m+tH]w[m]\sum_{f=0}^{N-1}e^{-2\pi if(m-n)/N}\\
  & =\sum_{t=-\infty}^{\infty}w[n]^{a}\sum_{m=0}^{N-1}x[m+tH]w[m]\delta(m-n)\\
