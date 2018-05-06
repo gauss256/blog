@@ -75,8 +75,12 @@ n.
 </span> This is not the weakest form of the condition, but it is sufficient and easily satisfied in practice. However, in the literature, you will see mention of a much stronger condition: the <i>constant-overlap add</i> (COLA) constraint. You can easily get the impression that COLA is necessary for the STFT to be invertible. In this note we derive the invertibility of the ISTFT from first principles and show that COLA, while sufficient, is not necessary.
 </div>
 <div class="Standard">
-Recent versions of SciPy include functions for the STFT and ISTFT. This note was prompted by the implementation of the <tt>istft</tt> function in <tt>scipy.signal</tt> (v1.0.0) which will check if COLA is satisfied and will abort if not. We want to make the case for removing that check.
-</div>
+  Recent versions of SciPy include functions for the STFT and ISTFT. This note was prompted by the implementation of the <tt>istft</tt> function in <tt>scipy.signal</tt> (v1.0.0) which will check if COLA is satisfied and will abort if not. We want to make the case for removing that check.
+  </div>
+<div class="Standard">
+  A short Python script which illustrates the points made in this note is available <a target="_blank" href="https://gist.github.com/gauss256/9d45cfc714c5faaa2d2b2e6e7a74b1d4">here</a>.
+  </div>
+
 <h1 class="Section">
 <a class="toc" name="toc-Section-2">2</a> Forward and inverse DFT for a single frame
 </h1>
