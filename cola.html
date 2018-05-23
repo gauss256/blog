@@ -120,16 +120,16 @@ convert the modified frames <span class="MathJax_Preview"><script type="math/tex
 An example of such processing is to remove segments of an audio signal whose energy is below a threshold and are regarded as silent.
 </div>
 <div class="Standard">
-Again, we will focus on the case where no modification is done (<span class="MathJax_Preview"><script type="math/tex">
-\bar{x}_{t}[n]=x_{t}[n]
+Again, we will focus on the case where no modification is done <span class="MathJax_Preview"><script type="math/tex">
+\left(\bar{x}_{t}=x_{t}\right)
 </script>
-</span>) and ask when is it possible to recover <span class="MathJax_Preview"><script type="math/tex">
+</span> and ask when is it possible to recover <span class="MathJax_Preview"><script type="math/tex">
 x
 </script>
 </span> from the <span class="MathJax_Preview"><script type="math/tex">
-x_{t}
+x_{t}.
 </script>
-</span>. It is expected that if we can do that, similar techniques will be valuable for the case where modifications are done.
+</span> It is expected that if we can do that, similar techniques will be valuable for the case where modifications are done.
 </div>
 <div class="Standard">
 The first condition for invertibility is that there is no gap between the frames. This makes intuitive sense because otherwise we are leaving out some samples when doing the windowing, so there is no way to reconstruct them.
@@ -233,9 +233,9 @@ Again, <span class="MathJax_Preview"><script type="math/tex">
 x_{t}[n]
 </script>
 </span> is defined for all <span class="MathJax_Preview"><script type="math/tex">
-n\in\mathbb{Z}
+n\in\mathbb{Z},
 </script>
-</span>, but only a finite number of samples are nonzero.
+</span> but only a finite number of samples are nonzero.
 </div>
 <h1 class="Section">
 <a class="toc" name="toc-Section-3">3</a> Inverting in the time domain
@@ -244,14 +244,17 @@ n\in\mathbb{Z}
 We start with the easier case, which is time-domain processing.
 </div>
 <div class="Standard">
-We will arrive at the <i>overlap-add</i> technique by starting with the following sum. Note that we use infinite limits in the following, but only a finite number of terms are non-zero.
+We will arrive at the <i>overlap-add</i> technique by starting with the following sum. Note that we use infinite limits in the following, but only a finite number of terms are non-zero. For any <span class="MathJax_Preview"><script type="math/tex">
+a>0,
+</script>
+</span> consider
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 \begin{align*}
-\sum_{t=-\infty}^{\infty}x_{t}[n] & =\sum_{t=-\infty}^{\infty}x[n]w[n-tH]\\
- & =x[n]\sum_{t=-\infty}^{\infty}w[n-tH]
+\sum_{t=-\infty}^{\infty}x_{t}[n]w^{a}[n-tH] & =\sum_{t=-\infty}^{\infty}x[n]w^{a+1}[n-tH]\\
+ & =x[n]\sum_{t=-\infty}^{\infty}w^{a+1}[n-tH]
 \end{align*}
 </script>
 
@@ -268,7 +271,7 @@ x
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 
-x[n]=\frac{\sum_{t=-\infty}^{\infty}x_{t}[n]}{\sum_{t=-\infty}^{\infty}w[n-tH]}\qquad\text{(overlap-add)}
+x[n]=\frac{\sum_{t=-\infty}^{\infty}x_{t}[n]w^{a}[n-tH]}{\sum_{t=-\infty}^{\infty}w^{a+1}[n-tH]}\qquad\text{(overlap-add)}
 
 </script>
 
@@ -276,19 +279,13 @@ x[n]=\frac{\sum_{t=-\infty}^{\infty}x_{t}[n]}{\sum_{t=-\infty}^{\infty}w[n-tH]}\
 
 </div>
 <div class="Standard">
-as long as the denominator <span class="MathJax_Preview"><script type="math/tex">
-\sum_{t}w[n-tH]\ne0
-</script>
-</span> for any <span class="MathJax_Preview"><script type="math/tex">
-n.
-</script>
-</span> We call this the <i>nonzero overlap-add </i>(NOLA) constraint. A stronger constraint is <i>constant overlap-add</i> (COLA), defined by
+as long as the denominator is not zero. We call this the <i>nonzero overlap-add </i>(NOLA) constraint
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 
-\sum_{t=-\infty}^{\infty}w[n-tH]=C\quad\text{for some constant }C\text{ and all }n\qquad\text{(COLA)}
+\sum_{t=-\infty}^{\infty}w^{a+1}[n-tH]\ne0\qquad\text{(NOLA)}
 
 </script>
 
@@ -296,16 +293,13 @@ n.
 
 </div>
 <div class="Standard">
-An even more restrictive condition is that <span class="MathJax_Preview"><script type="math/tex">
-C=1
-</script>
-</span>:
+A stronger constraint is <i>constant overlap-add</i> (COLA), defined by
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 
-\sum_{t=-\infty}^{\infty}w[n-tH]=1\quad\text{for all }n\qquad\text{(strong COLA)}
+\sum_{t=-\infty}^{\infty}w^{a+1}[n-tH]=C\qquad\text{(COLA)}
 
 </script>
 
@@ -313,7 +307,30 @@ C=1
 
 </div>
 <div class="Standard">
-If the window <span class="MathJax_Preview"><script type="math/tex">
+for some constant <span class="MathJax_Preview"><script type="math/tex">
+C.
+</script>
+</span> An even more restrictive condition is that <span class="MathJax_Preview"><script type="math/tex">
+C=1:
+</script>
+</span>
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+\sum_{t=-\infty}^{\infty}w^{a+1}[n-tH]=1\quad\text{for all }n\qquad\text{(strong COLA)}
+
+</script>
+
+</span>
+
+</div>
+<div class="Standard">
+If <span class="MathJax_Preview"><script type="math/tex">
+a=0
+</script>
+</span> and the window <span class="MathJax_Preview"><script type="math/tex">
 w
 </script>
 </span> satisfies the strong COLA constraint then we have a particularly simple inversion formula
@@ -333,24 +350,10 @@ x[n]=\sum_{t}x_{t}[n]
 However, while the COLA constraint is <i>sufficient</i>, it is not <i>necessary</i> for exact invertibility to be possible.
 </div>
 <div class="Standard">
-We can show in the same way that given any exponent <span class="MathJax_Preview"><script type="math/tex">
-a>0
+Although COLA is often introduced for the value <span class="MathJax_Preview"><script type="math/tex">
+a=0,
 </script>
-</span>, we have the inversion formula
-</div>
-<div class="Standard">
-<span class="MathJax_Preview">
-<script type="math/tex;mode=display">
-
-x[n]=\frac{\sum_{t=-\infty}^{\infty}x_{t}[n]w^{a}[n-tH]}{\sum_{t=-\infty}^{\infty}w^{a+1}[n-tH]}\qquad\text{(generalized overlap-add)}
-
-</script>
-
-</span>
-
-</div>
-<div class="Standard">
-The most common choice is <span class="MathJax_Preview"><script type="math/tex">
+</span> the most common choice is <span class="MathJax_Preview"><script type="math/tex">
 a=1
 </script>
 </span> for reasons that we will explain below.
@@ -457,9 +460,9 @@ X_{t}
 t
 </script>
 </span> and zero-padded for other <span class="MathJax_Preview"><script type="math/tex">
-n
+n:
 </script>
-</span>:
+</span>
 </div>
 <div class="Standard">
 <span class="MathJax_Preview">
@@ -476,25 +479,19 @@ y_{t}[n]=\begin{cases}
 
 </div>
 <div class="Standard">
-and is zero for other values of <span class="MathJax_Preview"><script type="math/tex">
-n
-</script>
-</span>.
-</div>
-<div class="Standard">
 Because we did not modify <span class="MathJax_Preview"><script type="math/tex">
-X_{t}
+X_{t},
 </script>
-</span>, we have <span class="MathJax_Preview"><script type="math/tex">
-y_{t}=x_{t}
+</span> we have <span class="MathJax_Preview"><script type="math/tex">
+y_{t}=x_{t}.
 </script>
-</span>. But we’ll keep the notation <span class="MathJax_Preview"><script type="math/tex">
+</span> But we’ll keep the notation <span class="MathJax_Preview"><script type="math/tex">
 y_{t}
 </script>
 </span> to look forward to the situation where we do have a modified <span class="MathJax_Preview"><script type="math/tex">
-X_{t}
+X_{t}.
 </script>
-</span>.
+</span>
 </div>
 <div class="Standard">
 By analogy with overlap-add in the time domain we consider the following sum. The equations look horrendous, but the calculation is straightforward.
@@ -525,9 +522,9 @@ x_{t}[n]
 y_{t}[n]
 </script>
 </span> are nonzero for the same values of <span class="MathJax_Preview"><script type="math/tex">
-n
+n.
 </script>
-</span>.
+</span>
 </div>
 <div class="Standard">
 We conclude that
@@ -536,7 +533,7 @@ We conclude that
 <span class="MathJax_Preview">
 <script type="math/tex;mode=display">
 
-x[n]=\frac{\sum_{t}y_{t}[n]w^{a}[n-tH]}{\sum_{t}w^{a+1}[n-tH]}\qquad\text{(STFT inversion)}
+x[n]=\frac{\sum_{t}y_{t}[n]w^{a}[n-tH]}{\sum_{t}w^{a+1}[n-tH]}\qquad\text{(overlap-add for STFT)}
 
 </script>
 
@@ -589,10 +586,10 @@ n
 
 </ol>
 <div class="Standard">
-Again, it is most common to choose <span class="MathJax_Preview"><script type="math/tex">
-a=1
+As mentioned above, it is most common to choose <span class="MathJax_Preview"><script type="math/tex">
+a=1.
 </script>
-</span>. The reason is that in the case where we did modify the STFT, there may not be a time-domain signal whose STFT matches our modified version. Choosing <span class="MathJax_Preview"><script type="math/tex">
+</span> The reason is that in the case where we did modify the STFT, there may not be a time-domain signal whose STFT matches our modified version. Choosing <span class="MathJax_Preview"><script type="math/tex">
 a=1
 </script>
 </span> gives the <a class="URL" href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.306.7858&amp;rep=rep1&amp;type=pdf">Griffin-Lim optimal estimate</a> (optimal in a least-squares sense) for a time-domain signal from a modified STFT. SciPy implements <span class="MathJax_Preview"><script type="math/tex">
@@ -604,7 +601,7 @@ a=1
 <a class="toc" name="toc-Section-6">6</a> Discussion and conclusions
 </h1>
 <div class="Standard">
-We have shown that the commonly-used COLA constraint is sufficient but not necessary for the windowed time domain or STFT to be invertible. The weaker NOLA condition is necessary and sufficient.
+We have shown that the commonly-used COLA constraint is sufficient but not necessary for the windowed time domain or STFT to be invertible. The weaker NOLA condition is necessary and sufficient. Almost all commonly-used window/overlap combinations satisfy NOLA.
 </div>
 <div class="Standard">
 We were motivated do this by the implementation of the SciPy library function <tt>istft</tt>. We recommend that the COLA constraint imposed by that function should be removed or at least made optional.
