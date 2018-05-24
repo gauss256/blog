@@ -72,7 +72,7 @@ An example of such processing is spectral subtraction for noise reduction.
 When creating the spectrogram in Step 1, a window <span class="MathJax_Preview"><script type="math/tex">
 w
 </script>
-</span> is usually applied to the samples in each frame, and the frames overlap. Because of this, it is not completely obvious if and how it is possible to consruct a time domain signal from the modified spectrogram.
+</span> is usually applied to the samples in each frame, and the frames overlap. Because of this, it is not completely obvious if and how it is possible to construct a time domain signal from the modified spectrogram.
 </div>
 <div class="Standard">
 In fact, depending on the processing that is done, there may not <i>be</i> a time-domain signal whose STFT is exactly the output from Step 2. In this note, we are going to ignore this issue and consider only the simple case where we don’t do anything in Step 2: <span class="MathJax_Preview"><script type="math/tex">
@@ -245,7 +245,13 @@ We start with the easier case, which is time-domain processing.
 </div>
 <div class="Standard">
 We will arrive at the <i>overlap-add</i> technique by starting with the following sum. Note that we use infinite limits in the following, but only a finite number of terms are non-zero. For any <span class="MathJax_Preview"><script type="math/tex">
-a>0,
+a
+</script>
+</span> (unless some of the <span class="MathJax_Preview"><script type="math/tex">
+w[n]=0
+</script>
+</span>, in which case we must have <span class="MathJax_Preview"><script type="math/tex">
+a>0),
 </script>
 </span> consider
 </div>
@@ -357,6 +363,29 @@ a=0,
 a=1
 </script>
 </span> for reasons that we will explain below.
+</div>
+<div class="Standard">
+If <span class="MathJax_Preview"><script type="math/tex">
+w[n]\ne0
+</script>
+</span> for all <span class="MathJax_Preview"><script type="math/tex">
+n
+</script>
+</span>, then we can choose <span class="MathJax_Preview"><script type="math/tex">
+a=-1
+</script>
+</span> to get the interesting result
+</div>
+<div class="Standard">
+<span class="MathJax_Preview">
+<script type="math/tex;mode=display">
+
+x[n]=\frac{1}{N}\sum_{t}x_{t}[n]w^{-1}[n-tH]
+
+</script>
+
+</span>
+
 </div>
 <h1 class="Section">
 <a class="toc" name="toc-Section-4">4</a> Forward and inverse DFT for a finite sequence
