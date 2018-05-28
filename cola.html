@@ -610,7 +610,7 @@ a=1
 We have shown that the commonly-used COLA constraint is sufficient but not necessary for the windowed time domain or STFT to be invertible. The weaker NOLA condition is necessary and sufficient. Almost all commonly-used window/overlap combinations satisfy NOLA.
 </div>
 <div class="Standard">
-We were motivated do this by the implementation of the SciPy library function <tt>istft</tt>. We recommend that the COLA constraint imposed by that function should be removed or at least made optional.
+We were motivated do this by the implementation of the SciPy library function <tt>istft</tt>. We recommend that the COLA constraint imposed by that function should be removed or at least made optional. Update: There is now a <a class="URL" href="https://github.com/scipy/scipy/pull/8870" target="blank">pull request</a> for this in the SciPy repo.
 </div>
 <h1 class="Section-">
 <a class="toc" name="toc-Section--1"></a>Appendix
