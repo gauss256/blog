@@ -36,7 +36,7 @@ Notes on &ldquo;Looking to Listen at the Cocktail Party&rdquo;
 <a class="toc" name="toc-Section--1"></a>Overview
 </h1>
 <div class="Standard">
-The paper, from Google Research (now Google AI, I guess), is well-written and clear, so I’ll just confine my notes to giving the context for the problem and what is unique and interesting about the paper’s solution.
+This paper, from Google Research (now Google AI, I guess), is well-written and clear, so I’ll just confine my notes to giving the context for the problem and what is unique and interesting about the paper’s solution.
 </div>
 <div class="Standard">
 This work fits into the category of using deep learning to enhance speech, with possible future applications to hearing assistance. People are generally pretty good at focusing on a single voice in a crowded room where there is background noise and many people talking at once. However, for people with hearing loss this ability rapidly diminishes, so there has long been interest in developing technology to compensate.
@@ -66,7 +66,7 @@ there’s no inherent way to indicate which speaker you want to listen to
 
 </ul>
 <div class="Standard">
-This is far from the real-world problem we’d like to solve. Despite impressive progress, it is beginning to feel like some new ingredients were needed. Maybe <a class="URL" href="https://youtu.be/Obif8S1wrUM">hardware</a>, maybe a language model that can infer from context like humans do, or maybe a new data source, like video. The video idea seems to have been in the air: three groups working on it independently published papers within a few days of each other <span class="bibcites">[<a class="bibliocite" name="cite-2" href="#biblio-2"><span class="bib-index">2</span></a>]</span> <span class="bibcites">[<a class="bibliocite" name="cite-1" href="#biblio-1"><span class="bib-index">1</span></a>]</span> <span class="bibcites">[<a class="bibliocite" name="cite-4" href="#biblio-4"><span class="bib-index">4</span></a>]</span>.
+This is far from the real-world problem we’d like to solve. Despite impressive progress, it is beginning to feel like some new ingredients are needed. Maybe <a class="URL" href="https://youtu.be/Obif8S1wrUM">hardware</a>, maybe a language model that can infer from context like humans do, or maybe a new data source, like video. The video idea seems to have been in the air: three groups working on it independently published papers within a few days of each other <span class="bibcites">[<a class="bibliocite" name="cite-2" href="#biblio-2"><span class="bib-index">2</span></a>]</span> <span class="bibcites">[<a class="bibliocite" name="cite-1" href="#biblio-1"><span class="bib-index">1</span></a>]</span> <span class="bibcites">[<a class="bibliocite" name="cite-4" href="#biblio-4"><span class="bib-index">4</span></a>]</span>.
 </div>
 <h1 class="Section-">
 <a class="toc" name="toc-Section--2"></a>Looking to Listen
@@ -105,10 +105,10 @@ Although the authors have some nice demos on real-world data, the training data 
 The video features are interesting. They first pick out all faces in a frame, then use face recognition to pick out one face, and create an embedding based on that face data.
 </div>
 <div class="Standard">
-The audio features are standard for speech processing work: a spectrogram, which is the collection of time-frequency bins for the audio after segmenting into overlapping time frames and doing a Fourier transform. A spectrogram by its nature consists of complex numbers. Most algorithms take the magnitude and discard the phase. In this paper however, they kept the full complex values to get the best results.
+The audio features are standard for speech processing work: a spectrogram, which is the collection of time-frequency (T-F) bins for the audio after segmenting into overlapping time frames and doing a Fourier transform in each frame. A spectrogram by its nature consists of complex numbers. Most algorithms take the magnitude and discard the phase. In this paper however, they kept the full complex values to get the best results.
 </div>
 <div class="Standard">
-The output of the network is a mask, which is a set of numbers, one for each t-f bin in the spectrogram, that are applied to the spectrogram by multiplying pointwise. The resulting spectrogram is inverted to produce an an audio (time-domain) signal.
+The output of the network is a mask, which is a set of numbers, one for each T-F bin in the spectrogram, that are applied to the spectrogram by multiplying pointwise. The resulting spectrogram is inverted to produce an an audio (time-domain) signal.
 </div>
 <h1 class="Section-">
 <a class="toc" name="toc-Section--4"></a>The Network
@@ -132,7 +132,10 @@ You should watch/listen to the demos <a class="URL" href="https://looking-to-lis
 The results are exciting (to me, anyway). Especially impressive are the applications to real-world situations, something not often seen in papers like these. The processing is not real-time, but presumably can get better with further work.
 </div>
 <div class="Standard">
-I found it unsurprising, but sad, that they had to code up their own benchmark algorithms &lt;rant&gt;because this area of machine learning is not as open and sharing as it should be&lt;/rant&gt;. They beat the beat the benchmark substantially for speech separation tasks. They did roughly as well on the straight speech enhancement task. This is surprising to me, but they explain it by saying that the frequency content of noise is sufficiently different from speech that video doesn’t add that much new information. I’m not convinced—it depends on the noise, which after all could be a babble of voices.
+I found it unsurprising, but sad, that they had to code up their own benchmark algorithms &lt;rant&gt;because this area of machine learning is not as open and sharing as it should be&lt;/rant&gt;. They beat the benchmark substantially for speech separation tasks.
+</div>
+<div class="Standard">
+They didn’t see a lot of improvement on the straight speech enhancement task. This is surprising to me, but they explain it by saying that the frequency content of noise is sufficiently different from speech that video doesn’t add that much new information. I’m not convinced—it depends on the noise, which after all could be a babble of voices.
 </div>
 <div class="Standard">
 The speech separation is quite effective on same-gender mixtures, which is noteworthy. Such data is generally quite challenging. The &ldquo;double Brady&rdquo; video is particularly interesting because not only is it an M-M mixture, it’s the same male voice that is being separated from itself!
