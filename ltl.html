@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="generator" content="http://www.nongnu.org/elyxer/"/>
+<meta name="create-date" content="2018-06-05"/>
+<link rel="stylesheet" href="lyx.css" type="text/css" media="all"/>
+<title>Looking to Listen</title>
+<script type="text/javascript" async
+src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+</head>
+<body>
+<div id="globalWrapper" style="max-width: 800px; margin: auto;">
+<script type="math/tex">
+\newcommand{\lyxlock}{}
+</script>
+<noscript>
+<div class="warning">
+Warning: <a href="http://www.mathjax.org/">MathJax</a> requires JavaScript to correctly process the mathematics on this page. Please enable JavaScript on your browser.
+</div><hr/>
+</noscript>
+<h1 class="title">
+Notes on &ldquo;Looking to Listen at the Cocktail Party&rdquo;
+</h1>
+<div class="Standard">
+<a class="URL" href="https://arxiv.org/abs/1804.03619">Link to paper</a>
+</div>
+<h1 class="Section-">
+<a class="toc" name="toc-Section--1"></a>Overview
+</h1>
+<div class="Standard">
+The paper, from Google Research (now Google AI, I guess), is well-written and clear, so I’ll just confine my notes to giving the context for the problem and what is unique and interesting about the paper’s solution.
+</div>
+<div class="Standard">
+This work fits into the category of using deep learning to enhance speech, with possible future applications to hearing assistance. People are generally pretty good at focusing on a single voice in a crowded room where there is background noise and many people talking at once. However, for people with hearing loss this ability rapidly diminishes, so there has long been interest in developing technology to compensate.
+</div>
+<div class="Standard">
+The challenge was dubbed &ldquo;the <a class="URL" href="https://youtu.be/iO3jTl0WuS4">cocktail-party problem</a>&rdquo; in 1953 and despite many attempts to solve it since then, success has been limited. Audio enhancements such as amplification and frequency adjustments aren’t effective, and computer algorithms struggle with it.
+</div>
+<div class="Standard">
+Some promising results have been achieved in the modern era of deep learning, beginning a couple of years ago with a technique called <i>Deep Clustering</i> <span class="bibcites">[<a class="bibliocite" name="cite-3" href="#biblio-3"><span class="bib-index">3</span></a>]</span>. Mixtures of voices could be separated into separate audio streams, one for each voice. Follow-on work provided several improvements, but still had several limitations:
+</div>
+<ul>
+<li>
+the algorithms operate on clean speech samples that are well recorded with close-up mics
+</li>
+<li>
+in other words, there is basically no background noise
+</li>
+<li>
+you sort of have to know how many speakers are in the mixture
+</li>
+<li>
+the quality of the separated speech is not spectacular
+</li>
+<li>
+there’s no inherent way to indicate which speaker you want to listen to
+</li>
+
+</ul>
+<div class="Standard">
+This is far from the real-world problem we’d like to solve. Despite impressive progress, it is beginning to feel like some new ingredients were needed. Maybe <a class="URL" href="https://youtu.be/Obif8S1wrUM">hardware</a>, maybe a language model that can infer from context like humans do, or maybe a new data source, like video. The video idea seems to have been in the air: three groups working on it independently published papers within a few days of each other <span class="bibcites">[<a class="bibliocite" name="cite-2" href="#biblio-2"><span class="bib-index">2</span></a>]</span> <span class="bibcites">[<a class="bibliocite" name="cite-1" href="#biblio-1"><span class="bib-index">1</span></a>]</span> <span class="bibcites">[<a class="bibliocite" name="cite-4" href="#biblio-4"><span class="bib-index">4</span></a>]</span>.
+</div>
+<h1 class="Section-">
+<a class="toc" name="toc-Section--2"></a>Looking to Listen
+</h1>
+<div class="Standard">
+This paper takes a new approach to combining video and audio to advance the state of the art on the various subproblems of the cocktail-party problem:
+</div>
+<ul>
+<li>
+separating speech from simultaneous talkers (source separation)
+</li>
+<li>
+suppressing background noise (speech enhancement)
+</li>
+<li>
+designating which speaker you want to focus on (attention)
+</li>
+
+</ul>
+<div class="Standard">
+The algorithm is <i>not</i> doing lip reading, at least not explicitly. (Other groups are working on this though.) The authors just feed both audio and video data into a network and let it figure out what it needs to do.
+</div>
+<div class="Standard">
+It makes sense that video should help. I saw an estimate once that 30% of speech intelligibility comes from visual information. A convincing demonstration of this is the <a class="URL" href="https://www.youtube.com/watch?v=G-lN8vWm3m0">McGurk effect</a>.
+</div>
+<h1 class="Section-">
+<a class="toc" name="toc-Section--3"></a>Training Data: AVSpeech
+</h1>
+<div class="Standard">
+Where do you get training data for such a network? This is one of the major contributions of the paper: scraping YouTube and other online sources, filtering it down to usable samples, and extracting features. The result is a data set called <i>AVSpeech</i> that Google promises to release to other researchers.
+</div>
+<div class="Standard">
+Although the authors have some nice demos on real-world data, the training data is synthesized from separate, clean sources which also serve as ground truth. The sources are mixed together and noise is added to create a training sample. This solves the problem of acquiring enough labeled training data.
+</div>
+<div class="Standard">
+The video features are interesting. They first pick out all faces in a frame, then use face recognition to pick out one face, and create an embedding based on that face data.
+</div>
+<div class="Standard">
+The audio features are standard for speech processing work: a spectrogram, which is the collection of time-frequency bins for the audio after segmenting into overlapping time frames and doing a Fourier transform. A spectrogram by its nature consists of complex numbers. Most algorithms take the magnitude and discard the phase. In this paper however, they kept the full complex values to get the best results.
+</div>
+<div class="Standard">
+The output of the network is a mask, which is a set of numbers, one for each t-f bin in the spectrogram, that are applied to the spectrogram by multiplying pointwise. The resulting spectrogram is inverted to produce an an audio (time-domain) signal.
+</div>
+<h1 class="Section-">
+<a class="toc" name="toc-Section--4"></a>The Network
+</h1>
+<div class="Standard">
+The network is basically an RNN with some bidirectional LSTM (BLSTM) and fully connected layers. The loss function is the squared error between the clean and masked spectrograms.
+</div>
+<div class="Standard">
+They trained a separate network for each possible number of speakers. This seems like an unfortunate limitation, but they allude to not needing the number of speakers.
+</div>
+<div class="Standard">
+It is trained for 5 million (!) epochs, using Adam with a learning rate schedule.
+</div>
+<h1 class="Section-">
+<a class="toc" name="toc-Section--5"></a>The Results
+</h1>
+<div class="Standard">
+You should watch/listen to the demos <a class="URL" href="https://looking-to-listen.github.io/">here</a>.
+</div>
+<div class="Standard">
+The results are exciting (to me, anyway). Especially impressive are the applications to real-world situations, something not often seen in papers like these. The processing is not real-time, but presumably can get better with further work.
+</div>
+<div class="Standard">
+I found it unsurprising, but sad, that they had to code up their own benchmark algorithms &lt;rant&gt;because this area of machine learning is not as open and sharing as it should be&lt;/rant&gt;. They beat the beat the benchmark substantially for speech separation tasks. They did roughly as well on the straight speech enhancement task. This is surprising to me, but they explain it by saying that the frequency content of noise is sufficiently different from speech that video doesn’t add that much new information. I’m not convinced—it depends on the noise, which after all could be a babble of voices.
+</div>
+<div class="Standard">
+The speech separation is quite effective on same-gender mixtures, which is noteworthy. Such data is generally quite challenging. The &ldquo;double Brady&rdquo; video is particularly interesting because not only is it an M-M mixture, it’s the same male voice that is being separated from itself!
+</div>
+<div class="Standard">
+The authors seem a little disappointed in the audio quality. I’m not. The outputs are fairly intelligible (by people with normal hearing). And, as shown by the video transcription demo, the artifacts don’t bother the speech recognition algorithms too much. It’s a good start.
+</div>
+<div class="Standard">
+Finally, it is worth noting, as the authors emphasize, that including video in the mix suggests a natural user interface for indicating what speaker you want to attend to: point.
+</div>
+<div class="Standard">
+<h1 class="biblio">
+References
+</h1>
+<p class="biblio">
+<span class="entry">[<a class="biblioentry" name="biblio-1"><span class="bib-index">1</span></a>] </span> <span class="bib-authors">Triantafyllos Afouras, Joon Son Chung, Andrew Zisserman</span>: “<span class="bib-title">The Conversation: Deep Audio-Visual Speech Enhancement</span>”, <i><span class="bib-journal">arXiv preprint arXiv:1804.04121</span></i>, <span class="bib-year">2018</span>.
+</p>
+<p class="biblio">
+<span class="entry">[<a class="biblioentry" name="biblio-2"><span class="bib-index">2</span></a>] </span> <span class="bib-authors">Ariel Ephrat, Inbar Mosseri, Oran Lang, Tali Dekel, Kevin Wilson, Avinatan Hassidim, William T Freeman, Michael Rubinstein</span>: “<span class="bib-title">Looking to Listen at the Cocktail Party: A Speaker-Independent Audio-Visual Model for Speech Separation</span>”, <i><span class="bib-journal">arXiv preprint arXiv:1804.03619</span></i>, <span class="bib-year">2018</span>.
+</p>
+<p class="biblio">
+<span class="entry">[<a class="biblioentry" name="biblio-3"><span class="bib-index">3</span></a>] </span> <span class="bib-authors">John R Hershey, Zhuo Chen, Jonathan Le Roux, Shinji Watanabe</span>: “<span class="bib-title">Deep clustering: Discriminative embeddings for segmentation and separation</span>”, <i><span class="bib-booktitle">Acoustics, Speech and Signal Processing (ICASSP), 2016 IEEE International Conference on</span></i>, pp. <span class="bib-pages">31—35</span>, <span class="bib-year">2016</span>.
+</p>
+<p class="biblio">
+<span class="entry">[<a class="biblioentry" name="biblio-4"><span class="bib-index">4</span></a>] </span> <span class="bib-authors">Andrew Owens, Alexei A Efros</span>: “<span class="bib-title">Audio-Visual Scene Analysis with Self-Supervised Multisensory Features</span>”, <i><span class="bib-journal">arXiv preprint arXiv:1804.03641</span></i>, <span class="bib-year">2018</span>.
+</p>
+
+</div>
+
+</div>
+</body>
+</html>
