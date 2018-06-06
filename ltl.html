@@ -5,14 +5,19 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <meta name="generator" content="http://www.nongnu.org/elyxer/"/>
 <meta name="create-date" content="2018-06-05"/>
-<link rel="stylesheet" href="http://elyxer.nongnu.org/lyx.css" type="text/css" media="all"/>
-<title>Notes on Looking to Listen at the Cocktail Party</title>
-<script type="text/javascript"
-  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+<link rel="stylesheet" href="lyx.css" type="text/css" media="all"/>
+<title>Looking to Listen</title>
+<script type="text/javascript" async
+src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
 </head>
 <body>
-<div id="globalWrapper">
+<div id="globalWrapper" style="max-width: 800px; margin: auto;">
 <script type="math/tex">
 \newcommand{\lyxlock}{}
 </script>
@@ -37,7 +42,7 @@ The paper, from Google Research (now Google AI, I guess), is well-written and cl
 This work fits into the category of using deep learning to enhance speech, with possible future applications to hearing assistance. People are generally pretty good at focusing on a single voice in a crowded room where there is background noise and many people talking at once. However, for people with hearing loss this ability rapidly diminishes, so there has long been interest in developing technology to compensate.
 </div>
 <div class="Standard">
-The challenge was dubbed &ldquo;the <a class="URL" href="https://youtu.be/iO3jTl0WuS4">cocktail-party problem</a>&rdquo; in 1953 and despite many attempts to solve it since then, success has been limited. Audio enhancements such as amplification and frequency adjustments aren’t effective, and computer algorithms struggle with it. 
+The challenge was dubbed &ldquo;the <a class="URL" href="https://youtu.be/iO3jTl0WuS4">cocktail-party problem</a>&rdquo; in 1953 and despite many attempts to solve it since then, success has been limited. Audio enhancements such as amplification and frequency adjustments aren’t effective, and computer algorithms struggle with it.
 </div>
 <div class="Standard">
 Some promising results have been achieved in the modern era of deep learning, beginning a couple of years ago with a technique called <i>Deep Clustering</i> <span class="bibcites">[<a class="bibliocite" name="cite-3" href="#biblio-3"><span class="bib-index">3</span></a>]</span>. Mixtures of voices could be separated into separate audio streams, one for each voice. Follow-on work provided several improvements, but still had several limitations:
